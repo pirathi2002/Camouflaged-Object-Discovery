@@ -88,6 +88,14 @@ Install dependencies:
 ```bash
 pip install tensorflow numpy matplotlib scikit-learn pillow
 ````
+## Output
+<div align="center">
+<img src="Figures/img1.jpg" width="90%">
+</div>
+<div align="center">
+<img src="Figures/img2.jpg" width="90%">
+</div>
+
 
 ## Contributors and Contact
 
