@@ -1,35 +1,63 @@
-<!-- # CIRCOD - Official Pytorch Implementation (WACV 2025) -->
+
+# 🧩 CIRCOD-TF: TensorFlow Implementation of Co-Saliency Inspired Referring Camouflaged Object Discovery
+
 <div align="center">
-<h1>Official Pytorch Implementation of CIRCOD: 
 
-Co-Saliency Inspired Referring Camouflaged Object Discovery </h1>
-Avi Gupta, Koteswar Rao Jerripothula, Tammam Tillo <br />
-Indraprastha Institute of Information Technology, Delhi, India</sub><br />
+![Paper](https://img.shields.io/badge/Inspired%20From-WACV%202025-blue)
+![Framework](https://img.shields.io/badge/Framework-TensorFlow-orange)
+![Dataset](https://img.shields.io/badge/Dataset-COD10K%20|%20NC4K%20|%20CAMO-green)
 
-[![Conference](https://img.shields.io/badge/WACV-2025-blue)](https://openaccess.thecvf.com/content/WACV2025/papers/Gupta_CIRCOD_Co-Saliency_Inspired_Referring_Camouflaged_Object_Discovery_WACV_2025_paper.pdf)
-[![Project](https://img.shields.io/badge/Project-2025-red)](https://www.iiitd.edu.in/~avig/project/CIRCOD/index.html)<br />
+**Inspired by:**  
+[CIRCOD: Co-Saliency Inspired Referring Camouflaged Object Discovery (WACV 2025)](https://openaccess.thecvf.com/content/WACV2025/papers/Gupta_CIRCOD_Co-Saliency_Inspired_Referring_Camouflaged_Object_Discovery_WACV_2025_paper.pdf)  
+*Avi Gupta, Koteswar Rao Jerripothula, and Tammam Tillo*  
+Indraprastha Institute of Information Technology, Delhi, India  
 
-<!--[![Paper]()]() -->
-
-<img src = "Figures/Architecture.png" width="100%" height="100%">
 </div>
 
-## Abtract
-Camouflaged object detection (COD), the task of identifying objects concealed within their surroundings, is often quite challenging due to the similarity that exists between the foreground and background. By incorporating an additional referring image where the target object is clearly visible, we can leverage the similarities between the two images to detect the camouflaged object. In this paper, we propose a novel problem setup: referring camouflaged object discovery (RCOD). In RCOD, segmentation occurs only when the object in the referring image is also present in the camouflaged image; otherwise, a blank mask is returned. This setup is particularly valuable when searching for specific camouflaged objects. Current COD methods are often generic, leading to numerous false positives in applications focused on specific objects. To address this, we introduce a new framework called Co-Saliency Inspired Referring Camouflaged Object Discovery (CIRCOD). Our approach consists of two main components: Co-Saliency-Aware Image Transformation (CAIT) and Co-Salient Object Discovery (CSOD). The CAIT module reduces the appearance and structural variations between the camouflaged and referring images, while the CSOD module utilizes the similarities between them to segment the camouflaged object, provided the images are semantically similar. Covering all semantic categories in current COD benchmark datasets, we collected over 1,000 referring images to validate our approach. Our extensive experiments demonstrate the effectiveness of our method and show that it achieves superior results compared to existing methods.
+---
 
-## Preparation
+## 🧠 Overview
 
-### Requirements
-Conda environment settings:
-```
-conda env create -f environment.yml
-conda activate circod
-```
+This repository presents a **TensorFlow 2.x reimplementation** of the **Saliency Enhancement Network (SEN)** module from the original **CIRCOD** framework.  
+Our goal is to reproduce and simplify the key idea behind **Co-Saliency Inspired Referring Camouflaged Object Discovery**, which detects objects concealed within their surroundings by leveraging an additional **referring image**.
 
-### Datasets
+The model performs **camouflaged object segmentation** on benchmark datasets such as **COD10K**, **NC4K**, and **CAMO**, demonstrating the applicability of TensorFlow for this challenging visual task.
 
-We use the [data](https://drive.google.com/drive/folders/16pzODVztI8ea0BRxJC0ZSobG7b56iXb-?usp=sharing) in below format for evaluation:
+---
 
+## 🧩 Network Architecture
+
+<div align="center">
+<img src="Figures/Architecture.png" width="90%">
+</div>
+
+### Key Components
+- **ConvBlocks** – Extract local and structural features.  
+- **ConvTransposeBlocks** – Upsample and reconstruct spatial details.  
+- **Skip Connections** – Preserve high-frequency information between encoder and decoder.  
+- **Sigmoid Output Layer** – Produces the binary camouflage mask.
+
+---
+
+## 📜 Abstract
+
+Camouflaged Object Detection (COD) aims to identify objects that are visually similar to their background. The challenge arises from minimal contrast between the object and its surroundings.  
+By incorporating a **referring image** where the target object is clearly visible, we can better locate the same object when it is camouflaged.  
+
+The CIRCOD framework introduces a novel problem setup — **Referring Camouflaged Object Discovery (RCOD)**.  
+Here, segmentation occurs *only if* the object in the referring image is also present in the camouflaged image. Otherwise, the model returns a blank mask.  
+
+To achieve this, CIRCOD proposes:
+- **Co-Saliency-Aware Image Transformation (CAIT)** – Reduces appearance and structural variations.  
+- **Co-Salient Object Discovery (CSOD)** – Exploits similarities between referring and camouflaged images.  
+
+This repository focuses on implementing and training the **SEN** component of the full CIRCOD pipeline.
+
+---
+
+## 📦 Dataset Preparation
+
+We use publicly available COD datasets organized as follows:
 ```
 data_root/
    ├── COD10K/
@@ -49,51 +77,19 @@ data_root/
    │   ├── GT
 ```
 
-### Pre-trained Models
-Download the pre-trained models from [here](https://drive.google.com/drive/folders/13dIAgv27Cu0FJdAEf4g1QZtzjwiz7HM_?usp=sharing) and place it in the ``pre-trained`` folder.
 
-### Training
-To train the networks, run the below commands for saliency enhancement network (SEN)
-```
-python train_sen.py --lr 5e-5 --wd 0.0001 --gpu_main 0 --train_batch_size 8 --test_batch_size 8 --num_worker 4 --image_size 512 --epoches 10 --train_dataset cod10k_train --test_dataset camo --model_file checkpoints/sen_cod10k.pkl --task cod
-```
-```
-python train_sen.py --lr 5e-5 --wd 0.0001 --gpu_main 0 --train_batch_size 8 --test_batch_size 8 --num_worker 4 --image_size 512 --epoches 10 --train_dataset r2c7k_train --test_dataset r2c7k_test --model_file checkpoints/sen_r2c7k.pkl --task cod
-```
-and final CIRCOD:
-```
-CUDA_VISIBLE_DEVICES=0 python train_main.py --lr 5e-5 --wd 0.0001 --gpu_main 0 --num_worker 4 --train_batch_size 8 --test_batch_size 8 --image_size 512 --task rcod --epoches 60 --cod_train_dataset cod10k_train --cod_test_dataset camo --search_dataset si1k_ref --checkpoint checkpoints/circod_cod10k.pkl --sen_path checkpoints/sen_cod10k.pkl
-```
-```
-CUDA_VISIBLE_DEVICES=0 python train_main.py --lr 5e-5 --wd 0.0001 --gpu_main 0 --num_worker 4 --train_batch_size 8 --test_batch_size 8 --image_size 512 --task ref-cod --epoches 60 --cod_train_dataset r2c7k_train --cod_test_dataset r2c7k_test --search_dataset r2ck_ref --checkpoint checkpoints/circod_cod10k.pkl --sen_path checkpoints/sen_r2c7k.pkl
-```
-### Testing
-Download the checkpoints from [here](https://drive.google.com/drive/folders/15WOWaYTOtRWmvye9GIsJZ3BU8q7OkUZo?usp=sharing) and place it in the ``checkpoints`` folder. Run the below commands for saliency enhancement network (SEN):
-```
-python test_sen.py --gpu_main 0 --image_size 512 --dataset camo --snapshot checkpoints/sen_cod10k.pkl --task cod
-```
-```
-python test_sen.py --gpu_main 0 --image_size 512 --dataset r2c7k_test --snapshot checkpoints/sen_r2c7k.pkl --task cod
-```
-and final CIRCOD:
-```
-CUDA_VISIBLE_DEVICES=0 python test_main.py --gpu 0 --image_size 512 --cod_dataset camo --search_dataset si1k_ref --snapshot checkpoints/sen_cod10k.pkl --sen_path checkpoints/sen_cod10k.pkl --task rcod
-```
-```
-CUDA_VISIBLE_DEVICES=0 python test_main.py --gpu 0 --image_size 512 --cod_dataset r2c7k_test --search_dataset r2ck_ref --snapshot checkpoints/ --sen_path checkpoints/sen_r2c7k.pkl --task ref-cod
-```
-**Remaining checkpoints will be uploaded soon.**
-## Citation
-If you find the repository or the paper useful or you use the proposed data, please use the following entry for citation.
-````BibTeX
-@InProceedings{Gupta_2025_WACV,
-    author    = {Gupta, Avi and Jerripothula, Koteswar Rao and Tillo, Tammam},
-    title     = {CIRCOD: Co-Saliency Inspired Referring Camouflaged Object Discovery},
-    booktitle = {Proceedings of the Winter Conference on Applications of Computer Vision (WACV)},
-    month     = {February},
-    year      = {2025},
-    pages     = {8302-8312}
-}
+You can access the datasets from this [Google Drive link](https://drive.google.com/drive/folders/16pzODVztI8ea0BRxJC0ZSobG7b56iXb-?usp=sharing).
+
+## ⚙️ Setup Instructions
+
+### 1️⃣ Environment Setup
+
+Install dependencies:
+```bash
+pip install tensorflow numpy matplotlib scikit-learn pillow
 ````
+
 ## Contributors and Contact
-If there are any questions, feel free to contact the authors: Avi Gupta (avig@iiitd.ac.in).
+
+- **Mathujan Shanmugavadivel** – 220389U.
+- **Pirathishanth Arudshelvan** – 220480P.
